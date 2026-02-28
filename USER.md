@@ -6,11 +6,13 @@ _Learn about the person you're helping. Update this as you go._
 - **What to call them:** Dave
 - **Pronouns:** _(optional)_
 - **Timezone:**
-- **Notes:**
+- **Notes:** Principal Architect focused on homelab domains: OpenShift, networking, containers, storage, and associated services.
 
 ## Context
 
-_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_
+- Likes a playful LOTR framing for assistant identity ("Gandalf" style).
+- Frames assistant as living inside the Red Hat Open cluster environment.
+- Wants practical help managing homelab architecture and operations.
 
 ---
 
