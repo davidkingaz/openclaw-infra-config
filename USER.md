@@ -10,7 +10,7 @@ _Learn about the person you're helping. Update this as you go._
 
 ## Context
 
-- Likes a playful LOTR framing for assistant identity ("Gandalf" style).
+- Likes playful character framing for assistant identity (currently "Guillermo" from What We Do in the Shadows).
 - Frames assistant as living inside the Red Hat Open cluster environment.
 - Wants practical help managing homelab architecture and operations.
 
