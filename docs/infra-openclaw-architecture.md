@@ -710,7 +710,7 @@ stringData:
   OPENAI_OAUTH_TOKEN: "..."         # OAuth token from ChatGPT Plus account
   DISCORD_BOT_TOKEN: "..."
   OPENCLAW_GATEWAY_TOKEN: "..."    # Generated with: openssl rand -hex 32
-  GITHUB_PAT: "ghp_..."            # For backup repo push access
+  GITHUB_SSH_PRIVATE_KEY: "..."    # For backup repo push access via SSH
 ```
 
 ### 14.6 Deployment (Headless — No Chromium)
@@ -920,7 +920,7 @@ spec:
 | Discord | Bot token + private server | 🔲 Create new |
 | OpenShift | cluster-admin ServiceAccount | 🔲 Create via ArgoCD |
 | Grafana | API key (Admin role) | 🔲 Create |
-| GitHub | PAT for private backup repo | 🔲 Create |
+| GitHub | SSH deploy key for private backup repo | 🔲 Create |
 | dns01/dns02 | SSH key for `adminuser` | ✅ Existing |
 | pfSense | SNMP read (configured) | ✅ Existing |
 
@@ -968,8 +968,8 @@ After ArgoCD deploys the bare infrastructure and the unconfigured OpenClaw pod i
 ### Step 2: Configure the Private Backup Repository
 
 > Set up your configuration backup system:
-> 1. Using the GITHUB_PAT environment variable, configure git with your identity (OpenClaw Infra Agent / openclaw-infra@kingfamilyaz.com)
-> 2. Clone the private repository: `git@github.com:davidkingaz/openclaw-infra-config.git` (or create it if it doesn't exist via the GitHub API)
+> 1. Configure git with your identity (OpenClaw Infra Agent / openclaw-infra@kingfamilyaz.com) and load SSH key-based auth for GitHub push/pull
+> 2. Clone the private repository via SSH: `git@github.com:davidkingaz/openclaw-infra-config.git` (or create it if it does not exist)
 > 3. Create the following directory structure in the repo:
 >    ```
 >    openclaw-infra-config/
@@ -1081,7 +1081,7 @@ After ArgoCD deploys the bare infrastructure and the unconfigured OpenClaw pod i
 >    - Commit reports to the backup repository
 >    - Maintain change logs
 >    - Support documentation update workflows
-> 4. Configure Git push access using the GITHUB_PAT
+> 4. Configure Git push access using SSH key auth
 > 5. Back up configuration to Git repo
 
 ### Step 9: Build Custom MCP Servers (Phase 2)
@@ -1164,7 +1164,7 @@ After ArgoCD deploys the bare infrastructure and the unconfigured OpenClaw pod i
 - [ ] Create Discord bot and private server with channel structure
 - [ ] Create private GitHub repo for configuration backup (`openclaw-infra-config`)
 - [ ] Add OpenClaw Infra manifests to homelabocp repo
-- [ ] Create OpenShift Secret manually (OpenAI OAuth token, Discord token, Gateway token, GitHub PAT)
+- [ ] Create OpenShift Secret manually (OpenAI OAuth token, Discord token, Gateway token, GitHub SSH key)
 - [ ] Commit and push to homelabocp — let ArgoCD sync
 - [ ] Verify pod is Running, Gateway responds on ping
 - [ ] Verify Discord bot is online and responds
