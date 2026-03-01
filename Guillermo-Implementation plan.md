@@ -22,7 +22,7 @@ The Infra OpenClaw Instance has **admin-level access** to the OpenShift cluster 
 **Key design decisions:**
 
 - **OpenAI Codex as the LLM provider** — All LLM-dependent tasks use OpenAI's Codex model via API, complying with Anthropic's end-user agreement for OpenClaw usage. Deterministic checks and basic comparisons require no LLM.
-- **No internet access** — The instance has a single egress route to the OpenAI API endpoint. No web browsing, no web search, no other external API access.
+- **No internet access** — The instance has a single egress route to the OpenAI API endpoint. No web browsing, no web scraping, no other external API access.
 - **Headless operation** — Runs the OpenClaw Gateway without the UI or Chromium sidecar. All interaction is through Discord.
 - **ArgoCD deploys infrastructure, OpenClaw configures itself** — The ArgoCD Application deploys all OpenShift resources and a bare, unconfigured OpenClaw container. Post-deployment, the operator logs into the OpenClaw instance and instructs it to self-configure using the detailed plan in this document.
 - **Certified MCP servers first** — MCP integration begins with officially certified servers (Grafana, OpenShift) before building custom MCPs for other homelab systems.
