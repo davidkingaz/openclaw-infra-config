@@ -1,0 +1,42 @@
+{
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "dm": {
+        "policy": "allowlist",
+        "allowFrom": ["733405009869537350"]
+      },
+      "guilds": {
+        "1477388730821115914": {
+          "allowFrom": ["733405009869537350"],
+          "requireMention": false
+        }
+      }
+    }
+  },
+  "models": {
+    "default": {
+      "provider": "openai",
+      "model": "codex",
+      "oauth": true,
+      "baseUrl": "https://api.openai.com/v1"
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "http": {
+      "endpoints": {
+        "chatCompletions": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "security": {
+    "exec": {
+      "security": "deny",
+      "ask": "on-miss",
+      "askFallback": "deny"
+    }
+  }
+}

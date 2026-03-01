@@ -1,0 +1,3 @@
+# America/Phoenix midnight daily config backup
+CRON_TZ=America/Phoenix
+0 0 * * * /home/openclaw/.openclaw/workspace/scripts/backup-config.sh
