@@ -1,221 +1,94 @@
-# New Application GitOps Intake Template (for Guillermo)
+# New App Quick Intake (Minimal) — for Guillermo
 
-Use this template when you want Guillermo to deploy a **new app** via:
-1) new Git repository,
-2) ArgoCD sync,
-3) OpenShift deployment.
-
-Fill this once, and Guillermo can execute with minimal follow-up.
+Master: this is the **short form**. Fill only what I cannot safely infer.
+I will auto-discover defaults from cluster state, existing apps, and homelab docs.
 
 ---
 
-## 0) Request Header
+## 1) What you want deployed (required)
 
-- Request name:
-- Date:
-- Requested by:
-- Priority: (Low / Normal / High)
-- Change window: (Anytime / specific window)
-
----
-
-## 1) Application Identity
-
-- Application name (k8s-safe):
-- Description/purpose:
-- Owning team/person:
-- Environment(s): (homelab / dev / test / prod)
-- Namespace to create/use:
-- ArgoCD app name:
-- OpenShift labels/annotations required:
+- App name:
+- What it does (1-2 lines):
+- Container image (or source repo if image unknown):
+- Exposure needed?
+  - none / internal service / public route
+- Any hard requirement I must respect?
+  - (example: no internet egress, read-only mode, must run on workers only)
 
 ---
 
-## 2) Source Repository (Git)
+## 2) Ownership + repo target (required)
 
-- New repo name:
-- Git provider/org:
-- Visibility: (private/public)
-- Default branch:
-- Branch strategy: (main only / PR required / feature branches)
-- Required reviewers:
-- Commit signing required? (Y/N)
-- Deploy key / robot account method:
-- Repo URL (SSH preferred):
-
-### Repo structure preference
-Choose one:
-- [ ] Plain manifests
-- [ ] Kustomize (recommended)
-- [ ] Helm chart
-- [ ] Hybrid
-
-If Kustomize:
-- Base path:
-- Overlay path(s):
+- Git repo for app manifests (new or existing):
+- ArgoCD app name (if you care; else I choose):
+- Namespace preference (if you care; else I choose):
 
 ---
 
-## 3) Build/Artifact
+## 3) Secrets/config you know I cannot infer (required if applicable)
 
-- App type: (containerized app / operator / static content / job)
-- Image source repo:
-- Image name:
-- Tag strategy: (pinned semver / digest / latest-not-allowed)
-- Registry:
-- Image pull secret needed? (Y/N)
-- Build pipeline source: (GitHub Actions / Tekton / external)
-- Build trigger:
+- Secret names + keys (names only, no values):
+- Who provides secret values? (you / external secret system)
+- Any certs/CA bundles required?
 
 ---
 
-## 4) OpenShift Runtime Requirements
+## 4) Guardrails (required)
 
-- Deployment kind: (Deployment/StatefulSet/DaemonSet/CronJob/Job)
-- Replicas:
-- CPU request/limit:
-- Memory request/limit:
-- Storage needed? (Y/N)
-- PVC size/class/access mode:
-- Security context constraints/requirements:
-  - runAsUser/runAsNonRoot
-  - fsGroup
-  - readOnlyRootFilesystem
-  - capabilities drop/add
-- Node selectors/tolerations/affinity:
-- PodDisruptionBudget needed? (Y/N)
+- Auto-sync in ArgoCD?
+  - yes / no
+- Allow Guillermo to proceed without asking for each non-destructive step?
+  - yes / no
+- Destructive actions still require explicit confirmation?
+  - yes (default)
 
 ---
 
-## 5) Config, Secrets, and Credentials
+## 5) Optional preferences (only if you care)
 
-- ConfigMap keys needed:
-- Secret keys needed (names only, no values):
-- Secret source of truth: (manual, sealed-secrets, external secret manager)
-- Who provides secret values?
-- Rotation policy:
-- Any certificates needed? (TLS cert/key, CA bundle):
+- Resource preference: small / medium / large
+- Storage needed? size/class if known:
+- Preferred domain/hostname for route:
+- Monitoring/alerts required? yes/no
 
 ---
 
-## 6) Networking and Exposure
+# What Guillermo will infer automatically
 
-- Service needed? (Y/N)
-- Service type: (ClusterIP/NodePort/LoadBalancer)
-- Service port(s):
-- Route/Ingress needed? (Y/N)
-- Hostname/FQDN:
-- TLS termination mode:
-- Path rules:
-- Ingress class / router requirements:
-- NetworkPolicy requirements:
-  - ingress allowed from:
-  - egress allowed to:
-  - required ports/protocols:
-- External dependencies (DNS/IP/FQDN + port):
+I will derive these from cluster patterns and current deployments unless you override:
 
----
-
-## 7) ArgoCD Configuration
-
-- ArgoCD namespace: (usually `openshift-gitops`)
-- ArgoCD project:
-- Destination cluster/server:
-- Destination namespace:
-- Source repo URL:
-- Source path:
-- Target revision:
-- Sync policy:
-  - automated prune: (Y/N)
-  - automated self-heal: (Y/N)
-- Sync options:
-  - CreateNamespace=true? (Y/N)
-- Ignore differences needed? (list exact resources/fields)
-- Health checks/customizations needed? (Y/N)
+- Namespace naming convention
+- ArgoCD project/namespace (`openshift-gitops` conventions)
+- Kustomize layout (`base` + `overlays/homelab`)
+- Default requests/limits based on similar workloads
+- Security context defaults (non-root where possible)
+- Service type/port defaults from image conventions
+- NetworkPolicy baseline (deny-by-default + minimum needed egress/ingress)
+- Probe defaults (liveness/readiness/startup)
+- Labels/annotations used across existing apps
+- Sync policy pattern used in current homelab apps
 
 ---
 
-## 8) Observability, Alerts, and SLOs
+# Guillermo execution contract
 
-- Liveness probe:
-- Readiness probe:
-- Startup probe:
-- Metrics endpoint:
-- ServiceMonitor/PodMonitor needed? (Y/N)
-- Logs destination/format:
-- Alert rules required:
-- Dashboard required:
-- SLO target(s):
+When you say “deploy using quick intake”, I will:
 
----
+1. Validate repo + Argo target
+2. Scaffold manifests with sane defaults
+3. Commit/push manifests
+4. Create/update ArgoCD `Application`
+5. Sync and verify health
+6. Report status + any blockers
 
-## 9) Operations and Lifecycle
-
-- Backup requirements:
-- Restore requirements:
-- Upgrade strategy:
-- Rollback strategy:
-- Data migration required? (Y/N)
-- Maintenance tasks (cron jobs) needed:
-- Runbook links:
+I will stop and ask only when blocked by:
+- missing credentials/secrets,
+- policy conflicts,
+- destructive/risky changes,
+- ambiguous requirements that could break intent.
 
 ---
 
-## 10) Security and Compliance
+# One-line command you can send
 
-- Access level required (least privilege target):
-- RBAC objects required:
-- Any cluster-admin requirement? (should be No unless justified)
-- Compliance requirements (e.g., CIS/internal):
-- Internet access policy:
-- Approved external sources:
-
----
-
-## 11) Validation Plan (Definition of Done)
-
-- [ ] ArgoCD app is Synced + Healthy
-- [ ] All pods Ready and stable for N minutes:
-- [ ] Probes passing
-- [ ] Logs show no critical errors
-- [ ] Metrics visible
-- [ ] Alerts configured and tested
-- [ ] Route/Ingress reachable (if applicable)
-- [ ] Secrets loaded and app functional
-- [ ] Rollback tested
-- [ ] Documentation updated
-
----
-
-## 12) Guillermo Execution Authorization
-
-- Guillermo may create repo scaffolding commits: (Y/N)
-- Guillermo may create/modify ArgoCD Application manifests: (Y/N)
-- Guillermo may apply non-destructive runtime checks automatically: (Y/N)
-- Guillermo must ask before any destructive action: (Y/N, default Yes)
-- Guillermo may post deployment updates to Discord channels:
-  - `#general` (Y/N)
-  - `#cluster-admin` (Y/N)
-  - `#agent-logs` (Y/N)
-
----
-
-## 13) Quick-Use Command Template (what Dave can say)
-
-> "Guillermo, deploy a new app using the New Application GitOps Intake Template in `docs/new-app-gitops-intake-template.md`. Use the filled values in `<path-to-filled-template>`. Proceed automatically for approved actions, report milestones in `#agent-logs`, and stop only on policy/safety gates."
-
----
-
-## 14) Optional: Minimal Example (filled)
-
-- Application name: `example-api`
-- Namespace: `example-api`
-- Repo: `git@github.com:davidkingaz/example-api-gitops.git`
-- Structure: `kustomize` (`base/` + `overlays/homelab`)
-- Image: `ghcr.io/davidkingaz/example-api:v1.0.0`
-- Service: `ClusterIP:8080`
-- Route: `example-api.apps.homelab.kingfamilyaz`
-- Argo app: `example-api`
-- Sync: automated prune+selfHeal
-- Secrets: `example-api-secrets` (manual)
-- DoD: synced/healthy + probes + route + logs + metrics
+> "Guillermo, deploy `<app-name>` using quick intake template in `docs/new-app-gitops-intake-template.md`. Infer defaults from current cluster patterns and proceed automatically under standard safety gates."
