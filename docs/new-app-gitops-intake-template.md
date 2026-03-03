@@ -1,94 +1,105 @@
-# New App Quick Intake (Minimal) — for Guillermo
+# New App Quick Intake (Master → Guillermo)
 
-Master: this is the **short form**. Fill only what I cannot safely infer.
-I will auto-discover defaults from cluster state, existing apps, and homelab docs.
-
----
-
-## 1) What you want deployed (required)
-
-- App name:
-- What it does (1-2 lines):
-- Container image (or source repo if image unknown):
-- Exposure needed?
-  - none / internal service / public route
-- Any hard requirement I must respect?
-  - (example: no internet egress, read-only mode, must run on workers only)
+Master, this is the **ultra-short form**.
+You provide intent and non-inferable facts. I infer the rest from current OpenShift + ArgoCD patterns.
 
 ---
 
-## 2) Ownership + repo target (required)
+## 1) Required (always)
 
-- Git repo for app manifests (new or existing):
-- ArgoCD app name (if you care; else I choose):
-- Namespace preference (if you care; else I choose):
-
----
-
-## 3) Secrets/config you know I cannot infer (required if applicable)
-
-- Secret names + keys (names only, no values):
-- Who provides secret values? (you / external secret system)
-- Any certs/CA bundles required?
+- **App name**:
+- **What it does** (1–2 lines):
+- **Source** (pick one):
+  - container image: `...`
+  - source repo: `...`
+- **Exposure intent** (pick one):
+  - `internal-only`
+  - `public-route`
+  - `no-service` (batch/cron/worker)
 
 ---
 
-## 4) Guardrails (required)
+## 2) Required only when I cannot infer
 
-- Auto-sync in ArgoCD?
-  - yes / no
-- Allow Guillermo to proceed without asking for each non-destructive step?
-  - yes / no
-- Destructive actions still require explicit confirmation?
-  - yes (default)
+- **External systems this app must reach** (FQDN/IP + port):
+- **Secrets needed** (name + key names only, no values):
+- **Any hard constraint** I must obey:
+  - (examples: must run on workers, no internet egress, read-only rootfs)
 
 ---
 
-## 5) Optional preferences (only if you care)
+## 3) Fixed defaults (no need to ask each time)
 
-- Resource preference: small / medium / large
-- Storage needed? size/class if known:
-- Preferred domain/hostname for route:
-- Monitoring/alerts required? yes/no
+These are now policy defaults unless you explicitly override:
 
----
-
-# What Guillermo will infer automatically
-
-I will derive these from cluster patterns and current deployments unless you override:
-
-- Namespace naming convention
-- ArgoCD project/namespace (`openshift-gitops` conventions)
-- Kustomize layout (`base` + `overlays/homelab`)
-- Default requests/limits based on similar workloads
-- Security context defaults (non-root where possible)
-- Service type/port defaults from image conventions
-- NetworkPolicy baseline (deny-by-default + minimum needed egress/ingress)
-- Probe defaults (liveness/readiness/startup)
-- Labels/annotations used across existing apps
-- Sync policy pattern used in current homelab apps
+- Git repo for app manifests: **always a new repo**
+- Namespace selection: **Guillermo chooses**
+- Secrets: **stored in OpenShift only; never in Git**
+- ArgoCD sync policy: **automated (prune + selfHeal + allowEmpty=false)**
+- Guillermo may proceed for non-destructive steps without asking each time: **Yes**
+- Destructive actions still require explicit confirmation: **Yes**
 
 ---
 
-# Guillermo execution contract
+## 4) Exposure recommendation policy (my default guidance)
+
+If you don’t specify, I recommend:
+
+1. **internal-only** by default (safest)
+2. **public-route** only when human/browser or external webhook access is required
+3. **no-service** for workers/cron jobs that don’t serve traffic
+
+I will call out if the app type suggests a different exposure model.
+
+---
+
+## 5) What I infer automatically from your environment
+
+From current cluster + ArgoCD conventions, I will infer and apply:
+
+- ArgoCD location and pattern:
+  - namespace: `openshift-gitops`
+  - project: `default`
+  - destination: `https://kubernetes.default.svc`
+  - syncOptions include `CreateNamespace=true`
+  - retry/backoff pattern aligned to existing apps
+- GitOps layout pattern:
+  - app repo scaffold with clear base/overlay structure or chart structure as appropriate
+- Labels/annotations naming conventions
+- Resource requests/limits baseline from similar workloads
+- Security context defaults (least privilege where compatible)
+- Service/Route/NetworkPolicy baseline aligned to exposure choice
+- Health probes and rollout strategy defaults
+- Validation gates (Synced/Healthy + pod readiness + route/service checks)
+
+---
+
+## 6) Execution contract (what happens when you say deploy)
 
 When you say “deploy using quick intake”, I will:
 
-1. Validate repo + Argo target
-2. Scaffold manifests with sane defaults
-3. Commit/push manifests
-4. Create/update ArgoCD `Application`
-5. Sync and verify health
-6. Report status + any blockers
+1. Create and scaffold the **new app repo**
+2. Add manifests with inferred defaults + your required inputs
+3. Add ArgoCD Application manifest with auto-sync policy
+4. Commit/push
+5. Verify Argo sync and OpenShift runtime health
+6. Report outcome + blockers + next action
 
-I will stop and ask only when blocked by:
-- missing credentials/secrets,
-- policy conflicts,
-- destructive/risky changes,
-- ambiguous requirements that could break intent.
+I stop and ask only if blocked by:
+- missing secret values/credentials,
+- policy conflict,
+- destructive or ambiguous change risk.
 
 ---
 
-# One-line command you can send
+## 7) One-line command you can send
 
-> "Guillermo, deploy `<app-name>` using quick intake template in `docs/new-app-gitops-intake-template.md`. Infer defaults from current cluster patterns and proceed automatically under standard safety gates."
+> "Guillermo, deploy `<app-name>` using `docs/new-app-gitops-intake-template.md`. Use default policy and infer all non-critical fields from current OpenShift/ArgoCD patterns."
+
+---
+
+## 8) Notes from current environment (baseline I reviewed)
+
+- Existing Argo apps are running with automated sync + self-heal.
+- Existing infra app patterns use explicit retry/backoff and CreateNamespace sync option.
+- App manifests are maintained GitOps-first and synced into OpenShift through ArgoCD.
