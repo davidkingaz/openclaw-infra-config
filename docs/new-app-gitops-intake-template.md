@@ -28,6 +28,26 @@ You provide intent and non-inferable facts. I infer the rest from current OpenSh
 
 ---
 
+## 2.5) MCP Addendum (fill only if app is an MCP server)
+
+- **MCP type/name**:
+- **Initial safety mode** (pick one):
+  - `read-only` (recommended)
+  - `disable-destructive`
+  - `full-write`
+- **Toolsets to enable initially** (default minimal):
+- **Auth mode**:
+  - `in-cluster ServiceAccount` (default)
+  - `kubeconfig` (only if required)
+- **OpenClaw registration target**:
+  - `global` (default)
+  - `specific agents only` (list)
+- **Should cluster-admin be the only privileged executor?**
+  - `yes` (default)
+- **Any resources to explicitly deny** (kinds/namespaces):
+
+---
+
 ## 3) Fixed defaults (no need to ask each time)
 
 These are now policy defaults unless you explicitly override:
