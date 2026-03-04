@@ -94,6 +94,47 @@ From current cluster + ArgoCD conventions, I will infer and apply:
 
 ---
 
+## 5.5) Mandatory Preflight Gates (new standard)
+
+Before any new app deployment, I must run and report a **GO / NO-GO** preflight.
+
+### Gate 1 — Platform health
+- ClusterOperators healthy
+- Nodes Ready
+- Argo baseline healthy
+
+### Gate 2 — Pattern discovery
+- Inspect existing successful apps for similar workload patterns (storage, SCC, init permissions, probes)
+- Reuse proven patterns where possible
+
+### Gate 3 — Policy/security compatibility
+- SCC compatibility for intended pod security model
+- ServiceAccount/RBAC scope validation
+- NetworkPolicy path validation
+- Secret references present (names/keys only)
+
+### Gate 4 — Storage viability (if PVC used)
+- StorageClass exists and PVC binds
+- **Write-test pod** using intended SCC/security model
+- **RWO attach test** (delete/recreate pod using same PVC)
+
+### Gate 5 — Render/schema/validation
+- Manifest rendering succeeds (kustomize/helm as applicable)
+- OpenClaw config changes pass `openclaw config validate` (when applicable)
+- No accidental mixed changes (keep commit scope tight)
+
+### Gate 6 — Rollback readiness
+- Revert path prepared and confirmed
+- Argo app ownership/refresh path confirmed
+
+### Gate 7 — Canary confirmation
+- Initial narrow rollout observed for stability
+- Only then proceed to full phase actions
+
+If any gate fails, deployment is **NO-GO** until remediated.
+
+---
+
 ## 6) Execution contract (what happens when you say deploy)
 
 When you say “deploy using quick intake”, I will:
